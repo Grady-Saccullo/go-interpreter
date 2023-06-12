@@ -1,6 +1,8 @@
 package lexer
 
-import "github.com/Grady-Saccullo/go-interpreter/token"
+import (
+	"github.com/Grady-Saccullo/go-interpreter/token"
+)
 
 type Lexer struct {
 	input string
@@ -43,21 +45,48 @@ func (l *Lexer) NextToken() token.Token {
 
 	switch l.ch {
 	case '=':
-		tok = newToken(token.ASSIGN, l.ch)
-	case ';':
-		tok = newToken(token.SEMICOLON, l.ch)
-	case '(':
-		tok = newToken(token.LPAREN, l.ch)
-	case ')':
-		tok = newToken(token.RPAREN, l.ch)
-	case '{':
-		tok = newToken(token.LBRACE, l.ch)
-	case '}':
-		tok = newToken(token.RBRACE, l.ch)
-	case ',':
-		tok = newToken(token.COMMA, l.ch)
+		// is ==
+		if l.peekChar() == '=' {
+			ch := l.ch
+			l.readChar()
+			literal := string(ch) + string(l.ch)
+			tok = token.Token{Type: token.EQ, Literal: literal}
+		} else {
+			tok = newTokenCharacter(token.ASSIGN, l.ch)
+		}
 	case '+':
-		tok = newToken(token.PLUS, l.ch)
+		tok = newTokenCharacter(token.PLUS, l.ch)
+	case '-':
+		tok = newTokenCharacter(token.MINUS, l.ch)
+	case '!':
+		if l.peekChar() == '=' {
+			ch := l.ch
+			l.readChar()
+			literal := string(ch) + string(l.ch)
+			tok = token.Token{Type: token.NEQ, Literal: literal}
+		} else {
+			tok = newTokenCharacter(token.BANG, l.ch)
+		}
+	case '/':
+		tok = newTokenCharacter(token.SLASH, l.ch)
+	case '*':
+		tok = newTokenCharacter(token.ASTERISK, l.ch)
+	case '<':
+		tok = newTokenCharacter(token.LT, l.ch)
+	case '>':
+		tok = newTokenCharacter(token.GT, l.ch)
+	case ',':
+		tok = newTokenCharacter(token.COMMA, l.ch)
+	case ';':
+		tok = newTokenCharacter(token.SEMICOLON, l.ch)
+	case '(':
+		tok = newTokenCharacter(token.LPAREN, l.ch)
+	case ')':
+		tok = newTokenCharacter(token.RPAREN, l.ch)
+	case '{':
+		tok = newTokenCharacter(token.LBRACE, l.ch)
+	case '}':
+		tok = newTokenCharacter(token.RBRACE, l.ch)
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
@@ -72,7 +101,7 @@ func (l *Lexer) NextToken() token.Token {
 			tok.Type = token.INT
 			return tok
 		} else {
-			tok = newToken(token.ILLEGAL, l.ch)
+			tok = newTokenCharacter(token.ILLEGAL, l.ch)
 		}
 
 	}
@@ -106,6 +135,15 @@ func (l *Lexer) skipWhitespace() {
 	}
 }
 
+// peekChar looks into the next char after the current char being read
+func (l *Lexer) peekChar() byte {
+	if l.readPosition >= len(l.input) {
+		return 0
+	} else {
+		return l.input[l.readPosition]
+	}
+}
+
 // isLetter determines if a character is valid, specifically for identifiers
 func isLetter(ch byte) bool {
 	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
@@ -116,10 +154,18 @@ func isDigit(ch byte) bool {
 	return '0' <= ch && ch <= '9'
 }
 
-// newToken create a token for the character being currently read
-func newToken(tokenType token.TokenType, ch byte) token.Token {
+// newTokenCharacter create a token from a given type and character
+func newTokenCharacter(tokenType token.TokenType, ch byte) token.Token {
 	return token.Token{
 		Type:    tokenType,
 		Literal: string(ch),
+	}
+}
+
+// newTokenString create a token from a given type and string
+func newTokenString(tokenType token.TokenType, str string) token.Token {
+	return token.Token{
+		Type:    tokenType,
+		Literal: str,
 	}
 }
