@@ -7,12 +7,12 @@ Going to be following the book very closely with only small changes where fit, h
 will remain unchanged.
 
 ## Progress
-- [ ] 1
+- [X] 1
   -  [X] 1.1
   -  [X] 1.2
   -  [X] 1.3
   -  [X] 1.4
-  -  [ ] 1.5
+  -  [X] 1.5
 - [ ] 2
     -  [ ] 2.1
     -  [ ] 2.2
