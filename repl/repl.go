@@ -8,8 +8,10 @@ import (
 	"io"
 )
 
+// PROMPT default characters to use to detonate new prompt line
 const PROMPT = ">> "
 
+// Start the REPL
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
 
