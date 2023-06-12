@@ -46,11 +46,8 @@ func (l *Lexer) NextToken() token.Token {
 	switch l.ch {
 	case '=':
 		// is ==
-		if l.peekChar() == '=' {
-			ch := l.ch
-			l.readChar()
-			literal := string(ch) + string(l.ch)
-			tok = newTokenString(token.EQ, literal)
+		if literal := l.readDoubleCharacter('='); literal != nil {
+			tok = newTokenString(token.EQ, *literal)
 		} else {
 			tok = newTokenCharacter(token.ASSIGN, l.ch)
 		}
@@ -60,11 +57,8 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newTokenCharacter(token.MINUS, l.ch)
 	case '!':
 		// is !=
-		if l.peekChar() == '=' {
-			ch := l.ch
-			l.readChar()
-			literal := string(ch) + string(l.ch)
-			tok = newTokenString(token.NEQ, literal)
+		if literal := l.readDoubleCharacter('='); literal != nil {
+			tok = newTokenString(token.NEQ, *literal)
 		} else {
 			tok = newTokenCharacter(token.BANG, l.ch)
 		}
@@ -122,6 +116,19 @@ func (l *Lexer) readCharacter(determiner determiner) string {
 		l.readChar()
 	}
 	return l.input[position:l.position]
+}
+
+// readDoubleCharacter uses the current input in the lexer to "yank" out the
+// next two characters if the following character matches
+func (l *Lexer) readDoubleCharacter(nextCh byte) *string {
+	if l.peekChar() == nextCh {
+		ch := l.ch
+		l.readChar()
+		literal := string(ch) + string(l.ch)
+		return &literal
+	} else {
+		return nil
+	}
 }
 
 // skipWhitespace continues to read through characters in the current input
